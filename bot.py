@@ -28,13 +28,13 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
             data = {'name': update.message.chat.title,
                     'group_id': update.message.chat.id}
-            requests.post(f"{domain}/api/exchange-group", data)
+            requests.post(f"{domain}/api/group", data)
 
         if update.message.chat.id == -863040168:
             if "/bg" in update.message.text:
                 text = update.message.text[4:]
 
-                res = requests.get(f"{domain}/api/exchange-group")
+                res = requests.get(f"{domain}/api/group")
 
                 list = []
 
@@ -42,8 +42,12 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     [[InlineKeyboardButton(text='Xóa báo giá', callback_data='delete')]],)
 
                 for item in res.json():
-                    msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
-                    list.append(msg.message_id)
+                    try:
+                        msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
+                        list.append(msg.message_id)
+                    except:
+                        requests.delete(f"{domain}/api/group/{item['id']}")      
+                        pass
 
                 await context.bot.send_message(chat_id=-863040168, text=list, reply_markup=reply_markup)
 
@@ -55,7 +59,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
 
-    res = requests.get(f"{domain}/api/exchange-group")
+    res = requests.get(f"{domain}/api/group")
 
     if query.data == "delete":
         msg = json.loads(update.effective_message.text)
