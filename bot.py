@@ -9,6 +9,8 @@ kyc = "👨‍💻 Xác minh KYC"
 uytin = "💎 DS Uy tín"
 
 domain = "https://chootc.com"
+token = "5949578109:AAGzPN6EkNWfcYeO33ioKOB1EjB3hBW_sNQ"
+manage_group_id = -863040168
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -23,18 +25,25 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     username = update.effective_user.username
     chat_id = update.effective_chat.id
 
+    res = requests.get(
+        f"https://api.telegram.org/bot{token}/getMe")
+    username_bot = res.json()['result']['username']
+
     if update.message.chat.type != "private":
         if update.message.from_user.username in ["minatabar", "ChoOTCVN_support", "QuocPham_OTC"]:
 
             data = {'name': update.message.chat.title,
-                    'group_id': update.message.chat.id}
+                    'group_id': update.message.chat.id,
+                    'key': username_bot + str(update.message.chat.id),
+                    'username': username_bot}
+
             requests.post(f"{domain}/api/group", data)
 
-        if update.message.chat.id == -863040168:
+        if update.message.chat.id == manage_group_id:
             if "/bg" in update.message.text:
                 text = update.message.text[4:]
 
-                res = requests.get(f"{domain}/api/group")
+                res = requests.get(f"{domain}/api/groups/{username_bot}")
 
                 list = []
 
@@ -46,10 +55,10 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                         msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
                         list.append(msg.message_id)
                     except:
-                        requests.delete(f"{domain}/api/group/{item['id']}")      
+                        requests.delete(f"{domain}/api/group/{item['id']}")
                         pass
 
-                await context.bot.send_message(chat_id=-863040168, text=list, reply_markup=reply_markup)
+                await context.bot.send_message(chat_id=manage_group_id, text=list, reply_markup=reply_markup)
 
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -69,8 +78,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         await context.bot.delete_message(message_id=message_id, chat_id=chat_id)
 
-app = ApplicationBuilder().token(
-    "5949578109:AAGzPN6EkNWfcYeO33ioKOB1EjB3hBW_sNQ").build()
+app = ApplicationBuilder().token(token).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(button))
