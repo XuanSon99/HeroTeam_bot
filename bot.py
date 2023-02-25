@@ -30,14 +30,14 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     username_bot = res.json()['result']['username']
 
     if update.message.chat.type != "private":
-        if update.message.from_user.username in ["minatabar", "ChoOTCVN_support", "QuocPham_OTC"]:
+        # if update.message.from_user.username in ["minatabar", "ChoOTCVN_support", "QuocPham_OTC"]:
 
-            data = {'name': update.message.chat.title,
-                    'group_id': update.message.chat.id,
-                    'key': username_bot + str(update.message.chat.id),
-                    'username': username_bot}
+        data = {'name': update.message.chat.title,
+                'group_id': update.message.chat.id,
+                'key': username_bot + str(update.message.chat.id),
+                'username': username_bot}
 
-            requests.post(f"{domain}/api/group", data)
+        requests.post(f"{domain}/api/group", data)
 
         if update.message.chat.id == manage_group_id:
             if "/bg" in update.message.text:
@@ -68,7 +68,11 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
 
-    res = requests.get(f"{domain}/api/group")
+    res = requests.get(
+        f"https://api.telegram.org/bot{token}/getMe")
+    username_bot = res.json()['result']['username']
+
+    res = requests.get(f"{domain}/api/groups/{username_bot}")
 
     if query.data == "delete":
         msg = json.loads(update.effective_message.text)
