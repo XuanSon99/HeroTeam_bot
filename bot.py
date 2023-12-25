@@ -4,13 +4,14 @@ import requests
 import json
 from types import SimpleNamespace
 import math
+import time
 
 kyc = "👨‍💻 Xác minh KYC"
 uytin = "💎 DS Uy tín"
 
-domain = "https://chootc.com"
-token = "5949578109:AAGzPN6EkNWfcYeO33ioKOB1EjB3hBW_sNQ"
-manage_group_id = -1001615070510
+domain = "https://api.chootc.com"
+token = "6950786800:AAHCI-8R29qkTC5_fIG44fGfKp6uu2FV2rY"
+manage_group_id = -4004349904
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -41,8 +42,8 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         print(update.message.chat.id)
         if update.message.chat.id == manage_group_id:
-            if "/bg" in update.message.text:
-                text = update.message.text[4:]
+            if "/c" in update.message.text:
+                text = update.message.text[3:]
 
                 res = requests.get(f"{domain}/api/groups/{username_bot}")
 
@@ -80,6 +81,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         for index, item in enumerate(res.json()):
             await context.bot.delete_message(message_id=msg[index],
                                              chat_id=item['group_id'])
+            if (index + 1) % 8 == 0:
+                time.sleep(2)
 
         await context.bot.delete_message(message_id=message_id, chat_id=chat_id)
 
