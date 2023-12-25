@@ -42,7 +42,7 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         print(update.message.chat.id)
         if update.message.chat.id == manage_group_id:
-            if "/c" in update.message.text:
+            if "/" in update.message.text:
                 text = update.message.text[3:]
 
                 res = requests.get(f"{domain}/api/groups/{username_bot}")
@@ -50,15 +50,16 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 list = []
 
                 reply_markup = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(text='Xóa báo giá', callback_data='delete')]],)
+                    [[InlineKeyboardButton(text='Xóa', callback_data='delete')]],)
 
                 for item in res.json():
-                    try:
-                        msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
-                        list.append(msg.message_id)
-                    except:
-                        requests.delete(f"{domain}/api/group/{item['id']}")
-                        pass
+                    if item['type'] == update.message.text[:2]:
+                        try:
+                            msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
+                            list.append(msg.message_id)
+                        except:
+                            requests.delete(f"{domain}/api/group/{item['id']}")
+                            pass
 
                 await context.bot.send_message(chat_id=manage_group_id, text=list, reply_markup=reply_markup)
 
