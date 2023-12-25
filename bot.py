@@ -79,8 +79,11 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if query.data == "delete":
         msg = json.loads(update.effective_message.text)
         for index, item in enumerate(res.json()):
-            await context.bot.delete_message(message_id=msg[index],
-                                             chat_id=item['group_id'])
+            try:
+                await context.bot.delete_message(message_id=msg[index], chat_id=item['group_id'])
+            except:
+                pass
+            
             if (index + 1) % 8 == 0:
                 time.sleep(2)
 
