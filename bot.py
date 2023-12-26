@@ -11,7 +11,7 @@ uytin = "💎 DS Uy tín"
 
 domain = "https://api.chootc.com"
 token = "6950786800:AAHCI-8R29qkTC5_fIG44fGfKp6uu2FV2rY"
-manage_group_id = -4067152610
+manage_group_id = -4004349904
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
