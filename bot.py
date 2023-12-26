@@ -11,7 +11,7 @@ uytin = "💎 DS Uy tín"
 
 domain = "https://api.chootc.com"
 token = "6950786800:AAHCI-8R29qkTC5_fIG44fGfKp6uu2FV2rY"
-manage_group_id = -4004349904
+manage_group_id = -4067152610
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -43,7 +43,6 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         print(update.message.chat.id)
         if update.message.chat.id == manage_group_id:
             if "/" in update.message.text:
-                text = update.message.text[3:]
 
                 res = requests.get(f"{domain}/api/groups/{username_bot}")
 
@@ -52,14 +51,20 @@ async def messageHandler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 reply_markup = InlineKeyboardMarkup(
                     [[InlineKeyboardButton(text='Xóa', callback_data='delete')]],)
 
-                for item in res.json():
+                for index, item in enumerate(res.json()):
                     if item['type'] == update.message.text[:2]:
                         try:
+                            text = update.message.text[3:].lower()
+                            if "chị" in item['name'].lower():
+                                text = text.replace("anh","chị")
                             msg = await context.bot.send_message(chat_id=item['group_id'], text=text, parse_mode=constants.ParseMode.HTML)
                             list.append(msg.message_id)
                         except:
                             requests.delete(f"{domain}/api/group/{item['id']}")
                             pass
+
+                    if (index + 1) % 8 == 0:
+                        time.sleep(2)
 
                 await context.bot.send_message(chat_id=manage_group_id, text=list, reply_markup=reply_markup)
 
